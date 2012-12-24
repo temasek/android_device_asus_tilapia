@@ -21,8 +21,6 @@ PRODUCT_PACKAGES := \
 
 PRODUCT_COPY_FILES := \
     device/asus/tilapia/init.tilapia.rc:root/init.grouper.rc
-    device/asus/tilapia/vold.fstab:system/etc/vold.fstab
-
 
 DEVICE_PACKAGE_OVERLAYS := \
     device/asus/tilapia/overlay
