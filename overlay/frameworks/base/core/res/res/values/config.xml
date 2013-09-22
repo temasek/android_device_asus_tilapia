@@ -189,6 +189,9 @@
     <!-- This device does allow sms service. -->
     <bool name="config_sms_capable">true</bool>
 
+    <!-- Enables built-in SIP phone capability -->
+    <bool name="config_built_in_sip_phone">true</bool>
+
     <!-- Enable puk unlockscreen -->
     <bool name="config_enable_puk_unlock_screen">true</bool>
 
