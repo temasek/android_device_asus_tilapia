@@ -28,28 +28,12 @@ on early-boot
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor interactive
-    restorecon /sys/devices/system/cpu
-    restorecon /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/boost_factor
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/input_boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/max_boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/sustain_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    restorecon /sys/devices/tegradc.0/smartdimmer/aggressiveness
-    restorecon /sys/devices/tegradc.0/smartdimmer/enable
 
 on fs
     mkdir /factory 0775 radio radio
+
     setprop ro.crypto.umount_sd false
     mount_all /fstab.grouper
-    restorecon /dev/block/platform/sdhci-tegra.3/by-name/PER
 
 on post-fs-data
     mkdir /data/misc/wifi 0770 wifi wifi
@@ -61,15 +45,9 @@ on post-fs-data
 
     # change back to bluetooth from system
     chown bluetooth net_bt_stack /data/misc/bluetooth
-
-    # sensors-config
-    mkdir /data/sensors 751 system system
-    mkdir /data/lightsensor 751 system system
-    mkdir /data/calibration
-    mkdir /data/amit
-
-    # btmacreader
-    mkdir /data/mac
+    
+    mkdir /data/radio 0775 radio radio
+    mkdir /data/radio/log 0775 radio radio
 
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
@@ -86,8 +64,6 @@ on boot
     chmod 0660 /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
-    restorecon /sys/devices/platform/bcm4330_rfkill/rfkill/rfkill0/state
-    restorecon /sys/devices/platform/bcm4330_rfkill/rfkill/rfkill0/type
 
     # bluetooth MAC address programming
     chown bluetooth net_bt_stack ro.bt.bdaddr_path
@@ -180,6 +156,7 @@ on boot
     chown system system /sys/bus/iio/devices/iio:device0/smd_threshold
     chown system system /sys/bus/iio/devices/iio:device0/smd_delay_threshold
     chown system system /sys/bus/iio/devices/iio:device0/smd_delay_threshold2
+
     ## AMI compass sensor
     chown system system /dev/iio:device1
     chown system system /sys/bus/iio/devices/trigger1/name
@@ -226,6 +203,7 @@ on boot
     chmod 600 /sys/bus/iio/devices/iio:device0/scan_elements/in_timestamp_en
     chmod 600 /sys/bus/iio/devices/iio:device0/temperature
     chmod 600 /sys/bus/iio/devices/iio:device0/trigger/current_trigger
+
     # new in MA 5.1.5
     chmod 600 /sys/bus/iio/devices/iio:device0/secondary_name
     chmod 600 /sys/bus/iio/devices/iio:device0/dmp_firmware
@@ -251,6 +229,7 @@ on boot
     chmod 600 /sys/bus/iio/devices/iio:device0/smd_threshold
     chmod 600 /sys/bus/iio/devices/iio:device0/smd_delay_threshold
     chmod 600 /sys/bus/iio/devices/iio:device0/smd_delay_threshold2
+
     ## AMI compass sensor
     chmod 600 /dev/iio:device1
     chmod 600 /sys/bus/iio/devices/trigger1/name
@@ -306,12 +285,6 @@ on boot
     chown gps system /dev/ttyHS1
     chmod 0660 /dev/ttyHS1
 
-
-# Load WiFi driver
-
-# BB mapping symbolic name to the logging ttyACM port
-    symlink /dev/ttyACM2 /dev/log_modem
-
 # ril
     chown radio system /sys/devices/virtual/ril/files/crash_dump_onoff
     chown radio system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
@@ -321,11 +294,19 @@ on boot
     chown radio system /sys/devices/platform/baseband_xmm_power/xmm_force_crash
     chown radio system /sys/class/ril/files/stop_hotplug_detect
 
+
+# Load WiFi driver
+
+# BB mapping symbolic name to the logging ttyACM port
+    symlink /dev/ttyACM2 /dev/log_modem
+
 # Touch
     chown system system /dev/elan-iap
-    chown system system /proc/ektf_dbg  
-    restorecon /sys/bus/i2c/drivers/elan-ktf3k/1-0010/update_fw
+    chown system system /proc/ektf_dbg
     start touch_fw_update
+
+# the following settings are used to disable ipv6 on cellular networks that cannot
+# support it.
 
 on property:ril.ipv6.rmnet0.enable=1
     write /proc/sys/net/ipv6/conf/rmnet0/disable_ipv6 0
@@ -408,7 +389,7 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     oneshot
 
 #Sensor: load calibration files.
-    service sensors-config /system/bin/sensors-config
+service sensors-config /system/bin/sensors-config
     class main
     user root
     oneshot
@@ -428,8 +409,7 @@ service bugreport /system/bin/dumpstate -d -p -B \
     keycodes 115 114
 
 # Start GPS daemon
-  on boot
-  service gps-daemon /system/bin/glgps -c /system/etc/gps/gpsconfig.xml
+service gps-daemon /system/bin/glgps -c /system/etc/gps/gpsconfig.xml
   user gps
   group system
   class late_start
@@ -449,7 +429,7 @@ on property:sys.shutdown.requested=1recovery
 service tf_daemon /system/bin/tf_daemon -storageDir /data/tf -d
     class main
     user root
-    group shell
+    group shell	
 
 # may restart due to /data/tf not existing yet
 on property:init.svc.tf_daemon=restarting

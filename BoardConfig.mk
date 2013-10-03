@@ -32,14 +32,11 @@
 USE_CAMERA_STUB := true
 USE_PROPRIETARY_AUDIO_EXTENSIONS := false
 
-BOARD_LIB_DUMPSTATE := libdumpstate.grouper
-
-TARGET_RECOVERY_UI_LIB := librecovery_ui_grouper
-RECOVERY_FSTAB_VERSION := 2
+TARGET_RECOVERY_UI_LIB := librecovery_ui_tilapia
 
 TARGET_RELEASETOOLS_EXTENSIONS := device/asus/tilapia
 
 -include vendor/asus/tilapia/BoardConfigVendor.mk
 include device/asus/grouper/BoardConfigCommon.mk
 
-TARGET_RECOVERY_FSTAB = device/asus/grouper/fstab.grouper
+TARGET_RECOVERY_FSTAB = device/asus/tilapia/fstab.grouper
