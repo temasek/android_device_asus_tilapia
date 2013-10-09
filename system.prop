@@ -12,3 +12,5 @@ debug.nfc.se=false
 # set default lcd density to TVDPI
 ro.sf.lcd_density=213
 
+# configure PRISM
+persist.tegra.didim.video = 5
