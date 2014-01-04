@@ -17,7 +17,8 @@
 # rild
 PRODUCT_PACKAGES := \
     rild \
-    Mms
+    Mms \
+    Dialer
 
 PRODUCT_COPY_FILES := \
     device/asus/tilapia/fstab.grouper:root/fstab.grouper \
