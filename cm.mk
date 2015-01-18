@@ -17,6 +17,9 @@ $(call inherit-product, vendor/cm/config/nfc_enhanced.mk)
 # Inherit device configuration
 $(call inherit-product, device/asus/tilapia/full_tilapia.mk)
 
+# Custom unofficial build tag
+TARGET_UNOFFICIAL_BUILD_ID := temasek
+
 ## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := tilapia
 PRODUCT_NAME := cm_tilapia
