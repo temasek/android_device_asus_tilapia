@@ -26,6 +26,11 @@ PRODUCT_COPY_FILES := \
 DEVICE_PACKAGE_OVERLAYS := \
     device/asus/tilapia/overlay
 
+PRODUCT_PROPERTY_OVERRIDES := \
+    ro.ota.romname=temasek-tilapia \
+    ro.ota.version=$(shell date +%F | sed s@-@@g) \
+    ro.ota.manifest=http://temasek.rajasthanautoworks.in/ota/tilapia.xml
+
 # Allow tethering without provisioning app
 PRODUCT_PROPERTY_OVERRIDES += \
     net.tethering.noprovisioning=true
